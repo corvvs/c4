@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <stdio.h>
+#include <time.h>
 #include "libft.h"
 
 #define MIN_WIDTH 7
@@ -50,6 +51,7 @@ typedef struct s_game
 
 bool	init_board(t_game* game, const t_option* option);
 bool	parse_args(int argc, char *argv[], t_option *option);
+int		ai_decide(const t_game* game);
 
 bool	ft_parseuint_base(const char *s, unsigned int *np, const char *digits);
 int		get_col(unsigned int* np);

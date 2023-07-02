@@ -4,6 +4,7 @@ INCDIR	:=	includes
 FILES	:=	\
 			main.c\
 			init.c\
+			ai.c\
 			ft_parseint.c\
 			io.c\
 

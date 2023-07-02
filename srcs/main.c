@@ -142,6 +142,10 @@ bool is_winning_move(const t_board *self, int col)
 	return winning_position(self) & possible(self) & column_mask(self, col);
 }
 
+bool is_opponent_winning_move(const t_board *self, int col)
+{
+	return opponent_winning_position(self) & possible(self) & column_mask(self, col);
+}
 
 // return true if current player can win next move
 bool can_win_next(const t_board *self)
@@ -217,11 +221,17 @@ void	game_loop(t_game* game)
 		ft_putnbr_fd(game->game_turn%2, STDOUT_FILENO);
 		ft_putstr_fd(" >\n", STDOUT_FILENO);
 		int	res = -1;
-		for (; res < 0;)
-		{
-			unsigned int	col;
-			if (!get_col(&col)) { continue; }
-			res = try_play(game, col - 1);
+		if (game->current_player == 0) {
+			for (; res < 0;)
+			{
+				unsigned int	col;
+				if (!get_col(&col)) { continue; }
+				res = try_play(game, col - 1);
+			}
+		} else {
+			if ((res = try_play(game, ai_decide(game))) < 0) {
+				ft_putstr_fd("ai fail\n", 2);
+			}
 		}
 
 		game->game_turn += 1;
@@ -233,6 +243,7 @@ void	game_loop(t_game* game)
 			ft_putstr_fd(" wins!\n", STDOUT_FILENO);
 			return;
 		}
+		game->current_player = 1 - game->current_player;
 	}
 }
 
@@ -247,6 +258,8 @@ int	main(int ac, char *av[])
 	ft_putstr_fd(", w: ", STDOUT_FILENO);
 	ft_putnbr_fd(option.WIDTH, STDOUT_FILENO);
 	ft_putstr_fd("\n", STDOUT_FILENO);
+
+	srand(time(NULL));
 	t_game	game = {
 		.option = &option,
 		.board = {
@@ -255,6 +268,7 @@ int	main(int ac, char *av[])
 			.board_mask = 0,
 			.bottom_mask = 0,
 		},
+		.current_player = rand() % 2,
 	};
 
 	if (!init_board(&game, &option)) {
