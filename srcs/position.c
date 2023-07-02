@@ -283,8 +283,9 @@ void	game_loop(t_game* game)
 		int	res = -1;
 		for (; res < 0;)
 		{
-			int	c = getchar();
-			res = try_play(game, c - '1');
+			unsigned int	col;
+			if (!get_col(&col)) { continue; }
+			res = try_play(game, col - 1);
 		}
 
 		game->game_turn += 1;

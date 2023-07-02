@@ -49,5 +49,6 @@ typedef struct s_game
 } t_game;
 
 bool	ft_parseuint_base(const char *s, unsigned int *np, const char *digits);
+int		get_col(unsigned int* np);
 
 #endif
