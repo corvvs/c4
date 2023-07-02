@@ -225,20 +225,22 @@ void	print_board(const t_board* self)
 	{
 		for (size_t x = 0; x < self->WIDTH; ++x)
 		{
-			printf("%c ", "?_ox"[1+board_at(self, x, y)]);
+			write(STDOUT_FILENO, &"?_ox"[1+board_at(self, x, y)], 1);
+			ft_putstr_fd(" ", STDOUT_FILENO);
 		}
-		printf("\n");
+		ft_putstr_fd("\n", STDOUT_FILENO);
 	}
 	for (size_t x = 0; x < self->WIDTH; ++x)
 	{
-		printf("==");
+		ft_putstr_fd("==", STDOUT_FILENO);
 	}
-	printf("\n");
+	ft_putstr_fd("\n", STDOUT_FILENO);
 	for (size_t x = 1; x <= self->WIDTH; ++x)
 	{
-		printf("%zu ", x);
+		ft_putnbr_fd(x, STDOUT_FILENO);
+		ft_putstr_fd(" ", STDOUT_FILENO);
 	}
-	printf("\n");
+	ft_putstr_fd("\n", STDOUT_FILENO);
 }
 
 #endif
@@ -271,11 +273,13 @@ void	game_loop(t_game* game)
 	{
 		if (possible(board) == 0)
 		{
-			printf("draw!\n");
+			ft_putstr_fd("draw!\n", STDOUT_FILENO);
 			return;
 		}
 
-		printf("player %d >\n", game->game_turn%2);
+		ft_putstr_fd("player ", STDOUT_FILENO);
+		ft_putnbr_fd(game->game_turn%2, STDOUT_FILENO);
+		ft_putstr_fd(" >\n", STDOUT_FILENO);
 		int	res = -1;
 		for (; res < 0;)
 		{
@@ -287,7 +291,9 @@ void	game_loop(t_game* game)
 		print_board(board);
 		if (res == 0)
 		{
-			printf("player %d wins!\n", game->game_turn % 2);
+			ft_putstr_fd("player ", STDOUT_FILENO);
+			ft_putnbr_fd(game->game_turn % 2, STDOUT_FILENO);
+			ft_putstr_fd(" wins!\n", STDOUT_FILENO);
 			return;
 		}
 	}
@@ -333,7 +339,11 @@ int	main(int ac, char *av[])
 	};
 	if (!parse_args(ac, av, &option))
 		return 1;
-	printf("h: %zu, w: %zu\n", option.HEIGHT, option.WIDTH);
+	ft_putstr_fd("h: ", STDOUT_FILENO);
+	ft_putnbr_fd(option.HEIGHT, STDOUT_FILENO);
+	ft_putstr_fd(", w: ", STDOUT_FILENO);
+	ft_putnbr_fd(option.WIDTH, STDOUT_FILENO);
+	ft_putstr_fd("\n", STDOUT_FILENO);
 	t_game	game = {
 		.option = &option,
 		.board = {
