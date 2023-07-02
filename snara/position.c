@@ -253,11 +253,13 @@ int try_play(t_game* game, int col)
 
 // TODO move to main.c
 // TODO implement AI
+int	ai_decide(const t_game* game);
 void	game_loop(t_game* game)
 {
 	t_board*	board = &game->board;
 	for (;;)
 	{
+		int	res = -1;
 		if (possible(board) == 0)
 		{
 			print_board(board);
@@ -269,23 +271,23 @@ void	game_loop(t_game* game)
 		{
 			print_board(board);
 			printf("player :\n");
-			for (; try_play(game, ft_getchar() - '1') < 0;)
+			for (; (res = try_play(game, ft_getchar() - '1')) < 0;)
 				;
 		}
 		else
 		{
 			printf("opponent :\n");
-			if (try_play(game, ai_decide(game)) < 0)
+			if ((res = try_play(game, ai_decide(game))) < 0)
 				ft_putstr_fd("ai fail\n", 2);
 		}
 
-		if (alignment(board, board->current_position))
+		if (res == 0)
 		{
 			print_board(board);
-			printf("player %d wins!\n", game->current_player);
+			printf((char*[]){"you win!\n","AI wins!\n"}[game->current_player]);
 			return;
 		}
-		game->current_player ^= 1;
+		game->current_player = (int[]){1, 0}[game->current_player];
 	}
 }
 
