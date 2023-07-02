@@ -334,10 +334,7 @@ bool	parse_args(int argc, char *argv[], t_option *option)
 // usage: ./a.out "12344321"
 int	main(int ac, char *av[])
 {
-	t_option	option = {
-		.HEIGHT = 6,
-		.WIDTH = 7,
-	};
+	t_option	option = {};
 	if (!parse_args(ac, av, &option))
 		return 1;
 	ft_putstr_fd("h: ", STDOUT_FILENO);
@@ -356,6 +353,7 @@ int	main(int ac, char *av[])
 	};
 
 	if (!init_board(&game, &option)) {
+		ft_putstr_fd("too large size!!\n", STDOUT_FILENO);
 		return 1;
 	}
 
