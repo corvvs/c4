@@ -234,6 +234,12 @@ int	put_hand(t_game* game) {
 	return res;
 }
 
+void	set_current_player_to_0(t_game* game)
+{
+	if (game->current_player == 0)
+		play(&game->board, 0);
+}
+
 // TODO move to main.c
 // TODO implement AI
 void	game_loop(t_game* game)
@@ -243,12 +249,14 @@ void	game_loop(t_game* game)
 	{
 		if (put_hand(game) == 0)
 		{
+			set_current_player_to_0(game);
 			print_board(board);
 			ft_putstr_fd((char*[]){"you win!\n", "AI wins!\n"}[game->current_player], STDOUT_FILENO);
 			return;
 		}
 		if (possible(board) == 0)
 		{
+			set_current_player_to_0(game);
 			print_board(board);
 			ft_putstr_fd("draw!\n", STDOUT_FILENO);
 			return;
