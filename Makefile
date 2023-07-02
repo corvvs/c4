@@ -5,8 +5,6 @@ FILES	:=	\
 			position.c\
 			ft_parseint.c\
 			io.c\
-			# main.c\
-			# utils.c\
 
 SRCS	:=	$(FILES:%.c=$(SRCDIR)/%.c)
 OBJS	:=	$(FILES:%.c=$(OBJDIR)/%.o)
