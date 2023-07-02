@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <stdio.h>
+#include "libft.h"
 
 #define MIN_WIDTH 7
 #define MIN_HEIGHT 6
@@ -46,5 +47,7 @@ typedef struct s_game
 	int				current_player;			  // 現手番のプレイヤー; 0 = 人間, 1 = AI
 	t_board			board;				  // 現在の盤面; 型については未定(1次元で行くか, 配列の配列でいくか)
 } t_game;
+
+bool	ft_parseuint_base(const char *s, unsigned int *np, const char *digits);
 
 #endif

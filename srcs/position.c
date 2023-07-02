@@ -293,6 +293,37 @@ void	game_loop(t_game* game)
 	}
 }
 
+bool	parse_args(int argc, char *argv[], t_option *option)
+{
+	unsigned int	width = 0;
+	unsigned int	height = 0;
+	bool			on_gui = false;
+
+	if (argc < 3 || 4 < argc)
+	{
+		ft_putstr_fd("usage: ./connect4 width height\n", 2);
+		return false;
+	}
+	if (!ft_parseuint_base(argv[1], &width, "0123456789")
+		|| !(MIN_WIDTH <= width && width <= MAX_WIDTH))
+	{
+		ft_putstr_fd("invalid width\n", 2);
+		return false;
+	}
+	if (!ft_parseuint_base(argv[1], &height, "0123456789")
+		|| !(MIN_HEIGHT <= height && height <= MAX_HEIGHT))
+	{
+		ft_putstr_fd("invalid height\n", 2);
+		return false;
+	}
+	if (argc == 4) //TODO gui option
+	{
+		on_gui = true;
+	}
+	*option = (t_option){height, width, on_gui};
+	return true;
+}
+
 // usage: ./a.out "12344321"
 int	main(int ac, char *av[])
 {
@@ -300,6 +331,9 @@ int	main(int ac, char *av[])
 		.HEIGHT = 6,
 		.WIDTH = 7,
 	};
+	if (!parse_args(ac, av, &option))
+		return 1;
+	printf("h: %zu, w: %zu\n", option.HEIGHT, option.WIDTH);
 	t_game	game = {
 		.option = &option,
 		.board = {
@@ -316,21 +350,20 @@ int	main(int ac, char *av[])
 
 	// printf("bitsize[%zu]\nbottom[%llx]\n board[%llx]\n", sizeof(t_bitmap)*8, bottom_mask, board_mask);
 
-	if (ac == 1)
-		game_loop(&game);
-	if (ac >= 2)
-	{
-		t_board	board = {
-			.HEIGHT = 6,
-			.WIDTH = 7,
-			.board_mask = 0,
-			.bottom_mask = 0,
-		};
-		print_board(&board);
-		printf("\nprocessed %zu turns\n", play_seq(&board, av[ac-1]));
-		print_board(&board);
-		return 0;
-	}
+	game_loop(&game);
+	// if (ac >= 2)
+	// {
+	// 	t_board	board = {
+	// 		.HEIGHT = 6,
+	// 		.WIDTH = 7,
+	// 		.board_mask = 0,
+	// 		.bottom_mask = 0,
+	// 	};
+	// 	print_board(&board);
+	// 	printf("\nprocessed %zu turns\n", play_seq(&board, av[ac-1]));
+	// 	print_board(&board);
+	// 	return 0;
+	// }
 }
 
 #endif

@@ -3,9 +3,9 @@ OBJDIR	:=	objs
 INCDIR	:=	includes
 FILES	:=	\
 			position.c\
+			ft_parseint.c\
 			# main.c\
 			# utils.c\
-			# ft_parseint.c\
 
 SRCS	:=	$(FILES:%.c=$(SRCDIR)/%.c)
 OBJS	:=	$(FILES:%.c=$(OBJDIR)/%.o)
