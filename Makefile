@@ -2,7 +2,7 @@ SRCDIR	:=	srcs
 OBJDIR	:=	objs
 INCDIR	:=	includes
 FILES	:=	\
-			position.c\
+			main.c\
 			ft_parseint.c\
 			io.c\
 
