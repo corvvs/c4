@@ -20,31 +20,31 @@ typedef __uint128_t t_bitmap;
 typedef uint64_t t_bitmap;
 #endif
 
+
 typedef struct s_board
 {
+	size_t HEIGHT;
+	size_t WIDTH;
+	t_bitmap bottom_mask;
+	t_bitmap board_mask;
 	t_bitmap current_position; // bitmap of the current_player stones
 	t_bitmap mask;			   // bitmap of all the already played spots
 } t_board;
 typedef unsigned int uint;
 
-static size_t WIDTH = 7;
-static size_t HEIGHT = 6;
-static t_bitmap bottom_mask = 0;
-static t_bitmap board_mask = 0;
-
 typedef struct s_option
 {
-	size_t height; // 盤面の縦サイズ = 行数
-	size_t width;  // 盤面の横サイズ = 列数
+	size_t HEIGHT; // 盤面の縦サイズ = 行数
+	size_t WIDTH;  // 盤面の横サイズ = 列数
 	bool on_gui;   // GUI が有効かどうか
 } t_option;
 
 typedef struct s_game
 {
-	t_option *option;			  // オプション構造体; 探索のことを考えるとポインタにしておく
-	unsigned long long game_turn; // ゲームターン数; 0から始まる
-	int current_player;			  // 現手番のプレイヤー; 0 = 人間, 1 = AI
-	t_board board;				  // 現在の盤面; 型については未定(1次元で行くか, 配列の配列でいくか)
+	t_option*		option;			  // オプション構造体; 探索のことを考えるとポインタにしておく
+	unsigned int	game_turn; // ゲームターン数; 0から始まる
+	int				current_player;			  // 現手番のプレイヤー; 0 = 人間, 1 = AI
+	t_board			board;				  // 現在の盤面; 型については未定(1次元で行くか, 配列の配列でいくか)
 } t_game;
 
 #endif

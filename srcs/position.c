@@ -1,25 +1,24 @@
 #include "c4.h"
 
-bool	init_board(size_t x, size_t y)
+bool	init_board(t_game* game, const t_option* option)
 {
-	WIDTH = x;
-	HEIGHT = y;
-	if (WIDTH * (HEIGHT+1) > sizeof(t_bitmap) * 8)
+	if (option->WIDTH * (option->HEIGHT+1) > sizeof(t_bitmap) * 8)
 	{
 		return false;
 	}
-	for (size_t i = 0; i < WIDTH; i++)
+	for (size_t i = 0; i < option->WIDTH; i++)
 	{
-		bottom_mask |= ((t_bitmap)1 << (i * (HEIGHT + 1)));
+		game->board.bottom_mask |= ((t_bitmap)1 << (i * (option->HEIGHT + 1)));
 	}
-	board_mask = bottom_mask * (((t_bitmap)1 << HEIGHT) - 1);
+	game->board.board_mask = game->board.bottom_mask * (((t_bitmap)1 << option->HEIGHT) - 1);
 	return true;
 }
 
 // unused
-bool alignment(t_bitmap pos)
+bool alignment(const t_board* self, t_bitmap pos)
 {
 	t_bitmap m;
+	size_t HEIGHT = self->HEIGHT;
 	// horizontal
 	m = pos & (pos >> (HEIGHT+1));
 	if(m & (m >> (2*(HEIGHT+1))))
@@ -49,8 +48,9 @@ bool alignment(t_bitmap pos)
  *
  * @return a bitmap of all the winning free spots making an alignment
  */
-static t_bitmap compute_winning_position(t_bitmap position, t_bitmap mask)
+static t_bitmap compute_winning_position(const t_board *self, t_bitmap position, t_bitmap mask)
 {
+	size_t HEIGHT = self->HEIGHT;
 	// vertical;
 	t_bitmap r = (position << 1) & (position << 2) & (position << 3);
 	t_bitmap p;
@@ -79,32 +79,32 @@ static t_bitmap compute_winning_position(t_bitmap position, t_bitmap mask)
 	r |= p & (position << (HEIGHT + 2));
 	r |= p & (position >> 3 * (HEIGHT + 2));
 
-	return r & (board_mask ^ mask);
+	return r & (self->board_mask ^ mask);
 }
 
 
 // return a bitmask containg a single 1 corresponding to the top cell of a given column
-static t_bitmap	top_mask_col(int col)
+static t_bitmap	top_mask_col(const t_board* self, int col)
 {
-	return ((t_bitmap)1) << ((HEIGHT - 1) + col * (HEIGHT + 1));
+	return ((t_bitmap)1) << ((self->HEIGHT - 1) + col * (self->HEIGHT + 1));
 }
 
 // return a bitmask containg a single 1 corresponding to the bottom cell of a given column
-static t_bitmap	bottom_mask_col(int col)
+static t_bitmap	bottom_mask_col(const t_board* self, int col)
 {
-	return ((t_bitmap)1) << (col * (HEIGHT + 1));
+	return ((t_bitmap)1) << (col * (self->HEIGHT + 1));
 }
 
 // return a bitmask 1 on all the cells of a given column
-static t_bitmap	column_mask(int col)
+static t_bitmap	column_mask(const t_board* self, int col)
 {
-	return (((t_bitmap)1 << HEIGHT) - 1) << (col * (HEIGHT + 1));
+	return (((t_bitmap)1 << self->HEIGHT) - 1) << (col * (self->HEIGHT + 1));
 }
 
 // return a bitmask 1 on all the cells of a given row
-t_bitmap	row_mask(int row)
+t_bitmap	row_mask(const t_board* self, int row)
 {
-	return (bottom_mask) << (row);
+	return (self->bottom_mask) << (row);
 }
 
 /**
@@ -123,37 +123,37 @@ static void play(t_board *self, t_bitmap move)
 
 // plays a playable column
 static void play_col(t_board *self, int col) {
-	play(self, (self->mask + bottom_mask_col(col)) & column_mask(col));
+	play(self, (self->mask + bottom_mask_col(self, col)) & column_mask(self, col));
 }
 
 // whether a column is playable
 bool can_play(const t_board *self, int col)
 {
-	return (self->mask & top_mask_col(col)) == 0;
+	return (self->mask & top_mask_col(self, col)) == 0;
 }
 
 // Return a bitmask of the possible winning positions for the current player
 t_bitmap winning_position(const t_board *self)
 {
-	return compute_winning_position(self->current_position, self->mask);
+	return compute_winning_position(self, self->current_position, self->mask);
 }
 
 // Return a bitmask of the possible winning positions for the opponent
 t_bitmap opponent_winning_position(const t_board *self)
 {
-	return compute_winning_position(self->current_position ^ self->mask, self->mask);
+	return compute_winning_position(self, self->current_position ^ self->mask, self->mask);
 }
 
 // Bitmap of the next possible valid moves for the current player including losing moves.
 static t_bitmap possible(const t_board *self)
 {
-	return (self->mask + bottom_mask) & board_mask;
+	return (self->mask + self->bottom_mask) & self->board_mask;
 }
 
 // Indicates whether the current player wins by playing a given column
 bool is_winning_move(const t_board *self, int col)
 {
-	return winning_position(self) & possible(self) & column_mask(col);
+	return winning_position(self) & possible(self) & column_mask(self, col);
 }
 
 
@@ -186,7 +186,7 @@ size_t play_seq(t_board *self, const char *seq)
 	for (i = 0; seq[i]; i++)
 	{
 		int col = seq[i] - '1';
-		if (col < 0 || (size_t)col >= WIDTH || !can_play(self, col))
+		if (col < 0 || (size_t)col >= self->WIDTH || !can_play(self, col))
 			return i; // invalid move
 		if (is_winning_move(self, col))
 			return i; // invalid?
@@ -200,12 +200,12 @@ size_t play_seq(t_board *self, const char *seq)
 // 1 if belongs to current_player
 // 2 if belongs to opponent
 // -1 on error
-static int	board_at(const t_board *self, int x, int y)
+static int	board_at(const t_board* self, int x, int y)
 {
-	if (!(0 <= x && (size_t)x < WIDTH && 0 <= y && (size_t)y < HEIGHT))
+	if (!(0 <= x && (size_t)x < self->WIDTH && 0 <= y && (size_t)y < self->HEIGHT))
 		return -1;
 
-	t_bitmap	pos = ((t_bitmap)1) << ((x * (HEIGHT + 1)) + (y));
+	t_bitmap	pos = ((t_bitmap)1) << ((x * (self->HEIGHT + 1)) + (y));
 	if ((pos & self->mask) == 0)
 		return 0;
 	if ((pos & self->current_position) != 0)
@@ -219,22 +219,22 @@ static int	board_at(const t_board *self, int x, int y)
 
 #include <stdio.h>
 //TODO get rid of printf()
-void	print_board(const t_board *self)
+void	print_board(const t_board* self)
 {
-	for (int y = HEIGHT-1; y >= 0; --y)
+	for (int y = self->HEIGHT-1; y >= 0; --y)
 	{
-		for (size_t x = 0; x < WIDTH; ++x)
+		for (size_t x = 0; x < self->WIDTH; ++x)
 		{
 			printf("%c ", "?_ox"[1+board_at(self, x, y)]);
 		}
 		printf("\n");
 	}
-	for (size_t x = 0; x < WIDTH; ++x)
+	for (size_t x = 0; x < self->WIDTH; ++x)
 	{
 		printf("==");
 	}
 	printf("\n");
-	for (size_t x = 1; x <= WIDTH; ++x)
+	for (size_t x = 1; x <= self->WIDTH; ++x)
 	{
 		printf("%zu ", x);
 	}
@@ -245,9 +245,10 @@ void	print_board(const t_board *self)
 
 #if 1
 
-int try_play(t_board *self, int col)
+int try_play(t_game* game, int col)
 {
-	if (col < 0 || (size_t)col >= WIDTH || !can_play(self, col))
+	t_board*	self = &game->board;
+	if (col < 0 || (size_t)col >= game->option->WIDTH || !can_play(self, col))
 	{
 		return -1; // invalid move
 	}
@@ -262,32 +263,31 @@ int try_play(t_board *self, int col)
 
 // TODO move to main.c
 // TODO implement AI
-void	game_loop()
+void	game_loop(t_game* game)
 {
-	t_board	board = {};
-	uint	game_turn = 0;
-	print_board(&board);
+	t_board*	board = &game->board;
+	print_board(board);
 	for (;;)
 	{
-		if (possible(&board) == 0)
+		if (possible(board) == 0)
 		{
 			printf("draw!\n");
 			return;
 		}
 
-		printf("player %d >\n", game_turn%2);
+		printf("player %d >\n", game->game_turn%2);
 		int	res = -1;
 		for (; res < 0;)
 		{
 			int	c = getchar();
-			res = try_play(&board, c - '1');
+			res = try_play(game, c - '1');
 		}
 
-		game_turn += 1;
-		print_board(&board);
+		game->game_turn += 1;
+		print_board(board);
 		if (res == 0)
 		{
-			printf("player %d wins!\n", game_turn%2);
+			printf("player %d wins!\n", game->game_turn % 2);
 			return;
 		}
 	}
@@ -296,17 +296,36 @@ void	game_loop()
 // usage: ./a.out "12344321"
 int	main(int ac, char *av[])
 {
-	if (!init_board(7, 6)) {
+	t_option	option = {
+		.HEIGHT = 6,
+		.WIDTH = 7,
+	};
+	t_game	game = {
+		.option = &option,
+		.board = {
+			.HEIGHT = option.HEIGHT,
+			.WIDTH = option.WIDTH,
+			.board_mask = 0,
+			.bottom_mask = 0,
+		},
+	};
+
+	if (!init_board(&game, &option)) {
 		return 1;
 	}
 
 	// printf("bitsize[%zu]\nbottom[%llx]\n board[%llx]\n", sizeof(t_bitmap)*8, bottom_mask, board_mask);
 
 	if (ac == 1)
-		game_loop();
+		game_loop(&game);
 	if (ac >= 2)
 	{
-		t_board	board = {};
+		t_board	board = {
+			.HEIGHT = 6,
+			.WIDTH = 7,
+			.board_mask = 0,
+			.bottom_mask = 0,
+		};
 		print_board(&board);
 		printf("\nprocessed %zu turns\n", play_seq(&board, av[ac-1]));
 		print_board(&board);
