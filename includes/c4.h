@@ -48,7 +48,11 @@ typedef struct s_game
 	t_board			board;				  // 現在の盤面; 型については未定(1次元で行くか, 配列の配列でいくか)
 } t_game;
 
+bool	init_board(t_game* game, const t_option* option);
+bool	parse_args(int argc, char *argv[], t_option *option);
+
 bool	ft_parseuint_base(const char *s, unsigned int *np, const char *digits);
 int		get_col(unsigned int* np);
+void	print_board(const t_board* self);
 
 #endif

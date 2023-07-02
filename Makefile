@@ -3,6 +3,7 @@ OBJDIR	:=	objs
 INCDIR	:=	includes
 FILES	:=	\
 			main.c\
+			init.c\
 			ft_parseint.c\
 			io.c\
 

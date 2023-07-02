@@ -1,19 +1,5 @@
 #include "c4.h"
 
-bool	init_board(t_game* game, const t_option* option)
-{
-	if (option->WIDTH * (option->HEIGHT+1) > sizeof(t_bitmap) * 8)
-	{
-		return false;
-	}
-	for (size_t i = 0; i < option->WIDTH; i++)
-	{
-		game->board.bottom_mask |= ((t_bitmap)1 << (i * (option->HEIGHT + 1)));
-	}
-	game->board.board_mask = game->board.bottom_mask * (((t_bitmap)1 << option->HEIGHT) - 1);
-	return true;
-}
-
 // unused
 bool alignment(const t_board* self, t_bitmap pos)
 {
@@ -195,56 +181,6 @@ size_t play_seq(t_board *self, const char *seq)
 	return i;
 }
 
-// return board[x,y]
-// 0 if empty
-// 1 if belongs to current_player
-// 2 if belongs to opponent
-// -1 on error
-static int	board_at(const t_board* self, int x, int y)
-{
-	if (!(0 <= x && (size_t)x < self->WIDTH && 0 <= y && (size_t)y < self->HEIGHT))
-		return -1;
-
-	t_bitmap	pos = ((t_bitmap)1) << ((x * (self->HEIGHT + 1)) + (y));
-	if ((pos & self->mask) == 0)
-		return 0;
-	if ((pos & self->current_position) != 0)
-		return 1;
-	if ((pos & self->current_position) == 0)
-		return 2;
-	return -1;
-}
-
-#if 1
-
-#include <stdio.h>
-//TODO get rid of printf()
-void	print_board(const t_board* self)
-{
-	for (int y = self->HEIGHT-1; y >= 0; --y)
-	{
-		for (size_t x = 0; x < self->WIDTH; ++x)
-		{
-			write(STDOUT_FILENO, &"?_ox"[1+board_at(self, x, y)], 1);
-			ft_putstr_fd(" ", STDOUT_FILENO);
-		}
-		ft_putstr_fd("\n", STDOUT_FILENO);
-	}
-	for (size_t x = 0; x < self->WIDTH; ++x)
-	{
-		ft_putstr_fd("==", STDOUT_FILENO);
-	}
-	ft_putstr_fd("\n", STDOUT_FILENO);
-	for (size_t x = 1; x <= self->WIDTH; ++x)
-	{
-		ft_putnbr_fd(x, STDOUT_FILENO);
-		ft_putstr_fd(" ", STDOUT_FILENO);
-	}
-	ft_putstr_fd("\n", STDOUT_FILENO);
-}
-
-#endif
-
 #if 1
 
 int try_play(t_game* game, int col)
@@ -298,37 +234,6 @@ void	game_loop(t_game* game)
 			return;
 		}
 	}
-}
-
-bool	parse_args(int argc, char *argv[], t_option *option)
-{
-	unsigned int	width = 0;
-	unsigned int	height = 0;
-	bool			on_gui = false;
-
-	if (argc < 3 || 4 < argc)
-	{
-		ft_putstr_fd("usage: ./connect4 width height\n", 2);
-		return false;
-	}
-	if (!ft_parseuint_base(argv[1], &width, "0123456789")
-		|| !(MIN_WIDTH <= width && width <= MAX_WIDTH))
-	{
-		ft_putstr_fd("invalid width\n", 2);
-		return false;
-	}
-	if (!ft_parseuint_base(argv[1], &height, "0123456789")
-		|| !(MIN_HEIGHT <= height && height <= MAX_HEIGHT))
-	{
-		ft_putstr_fd("invalid height\n", 2);
-		return false;
-	}
-	if (argc == 4) //TODO gui option
-	{
-		on_gui = true;
-	}
-	*option = (t_option){height, width, on_gui};
-	return true;
 }
 
 // usage: ./a.out "12344321"
