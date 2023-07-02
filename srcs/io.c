@@ -43,6 +43,7 @@ void	print_board(const t_board* self)
 	for (size_t x = 0; x < self->WIDTH; ++x)
 	{
 		ft_putstr_fd("─", STDOUT_FILENO);
+		ft_putstr_fd("─", STDOUT_FILENO);
 		ft_putstr_fd(x + 1 < self->WIDTH ? "┬" :  "╮", STDOUT_FILENO);
 	}
 	ft_putstr_fd("\n", STDOUT_FILENO);
@@ -52,6 +53,16 @@ void	print_board(const t_board* self)
 		ft_putstr_fd("│", STDOUT_FILENO);
 		for (size_t x = 0; x < self->WIDTH; ++x)
 		{
+			ft_putstr_fd(" ", STDOUT_FILENO);
+			ft_putstr_fd(" ", STDOUT_FILENO);
+			ft_putstr_fd("│", STDOUT_FILENO);
+		}
+		ft_putstr_fd("\n", STDOUT_FILENO);
+
+		ft_putstr_fd("│", STDOUT_FILENO);
+		for (size_t x = 0; x < self->WIDTH; ++x)
+		{
+			ft_putstr_fd(" ", STDOUT_FILENO);
 			write(STDOUT_FILENO, &"? ox"[1+board_at(self, x, y)], 1);
 			ft_putstr_fd("│", STDOUT_FILENO);
 		}
@@ -60,6 +71,7 @@ void	print_board(const t_board* self)
 		ft_putstr_fd(1 <= y ? "├" : "╰", STDOUT_FILENO);
 		for (size_t x = 0; x < self->WIDTH; ++x)
 		{
+			ft_putstr_fd("─", STDOUT_FILENO);
 			ft_putstr_fd("─", STDOUT_FILENO);
 			if (1 <= y) {
 				ft_putstr_fd(x + 1 < self->WIDTH ? "┼" :  "┤", STDOUT_FILENO);
@@ -73,6 +85,9 @@ void	print_board(const t_board* self)
 	for (size_t x = 1; x <= self->WIDTH; ++x)
 	{
 		ft_putstr_fd(" ", STDOUT_FILENO);
+		if (x < 10) {
+			ft_putstr_fd(" ", STDOUT_FILENO);
+		}
 		ft_putnbr_fd(x, STDOUT_FILENO);
 	}
 	ft_putstr_fd("\n", STDOUT_FILENO);
