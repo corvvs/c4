@@ -208,39 +208,42 @@ int try_play(t_game* game, int col)
 void	game_loop(t_game* game)
 {
 	t_board*	board = &game->board;
-	print_board(board);
 	for (;;)
 	{
-		if (possible(board) == 0)
-		{
-			ft_putstr_fd("draw!\n", STDOUT_FILENO);
-			return;
-		}
 
-		ft_putstr_fd("player ", STDOUT_FILENO);
-		ft_putnbr_fd(game->game_turn%2, STDOUT_FILENO);
-		ft_putstr_fd(" >\n", STDOUT_FILENO);
 		int	res = -1;
-		if (game->current_player == 0) {
+		if (game->current_player == 0)
+		{
+			print_board(board);
+			ft_putstr_fd("player's turn:\n", STDOUT_FILENO);
 			for (; res < 0;)
 			{
 				unsigned int	col;
-				if (!get_col(&col)) { continue; }
+				if (get_col(&col) != true) {
+					continue;
+				}
 				res = try_play(game, col - 1);
 			}
-		} else {
-			if ((res = try_play(game, ai_decide(game))) < 0) {
-				ft_putstr_fd("ai fail\n", 2);
-			}
 		}
-
+		else if (game->current_player == 1)
+		{
+			ft_putstr_fd("AI's turn: ", STDOUT_FILENO);
+			unsigned int	col = ai_decide(game);
+			ft_putnbr_fd(col + 1, STDOUT_FILENO), ft_putstr_fd("\n", STDOUT_FILENO);
+			if ((res = try_play(game, col)) < 0)
+				ft_putstr_fd("ERROR: AI messed up\n", 2);
+		}
 		game->game_turn += 1;
-		print_board(board);
 		if (res == 0)
 		{
-			ft_putstr_fd("player ", STDOUT_FILENO);
-			ft_putnbr_fd(game->game_turn % 2, STDOUT_FILENO);
-			ft_putstr_fd(" wins!\n", STDOUT_FILENO);
+			print_board(board);
+			ft_putstr_fd((char*[]){"you win!\n", "AI wins!\n"}[game->current_player], STDOUT_FILENO);
+			return;
+		}
+		if (possible(board) == 0)
+		{
+			print_board(board);
+			ft_putstr_fd("draw!\n", STDOUT_FILENO);
 			return;
 		}
 		game->current_player = 1 - game->current_player;

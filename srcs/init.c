@@ -17,7 +17,7 @@ bool	parse_args(int argc, char *argv[], t_option *option)
 		ft_putstr_fd("invalid width\n", 2);
 		return false;
 	}
-	if (!ft_parseuint_base(argv[1], &height, "0123456789")
+	if (!ft_parseuint_base(argv[2], &height, "0123456789")
 		|| !(MIN_HEIGHT <= height && height <= MAX_HEIGHT))
 	{
 		ft_putstr_fd("invalid height\n", 2);
@@ -37,10 +37,14 @@ bool	init_board(t_game* game, const t_option* option)
 	{
 		return false;
 	}
+	game->board.WIDTH = option->WIDTH;
+	game->board.HEIGHT = option->HEIGHT;
 	for (size_t i = 0; i < option->WIDTH; i++)
 	{
 		game->board.bottom_mask |= ((t_bitmap)1 << (i * (option->HEIGHT + 1)));
 	}
 	game->board.board_mask = game->board.bottom_mask * (((t_bitmap)1 << option->HEIGHT) - 1);
+	game->board.mask = 0;
+	game->board.current_position = 0;
 	return true;
 }
